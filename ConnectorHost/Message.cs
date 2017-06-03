@@ -22,7 +22,14 @@ namespace ConnectorHost
         /// Текст
         /// </summary>
         public string Text { get; set; }
-
+        /// <summary>
+        /// Дата
+        /// </summary>
+        public DateTime Date { get; set; }
+        /// <summary>
+        /// Мессенджер 
+        /// </summary>
+        public string Messanger { get; set; }
         /// <summary>
         /// Вложения
         /// </summary>

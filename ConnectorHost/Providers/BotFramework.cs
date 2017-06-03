@@ -7,10 +7,52 @@ using Microsoft.Bot.Connector;
 
 namespace ConnectorHost.Providers
 {
+    public interface IBotFramework
+    {
+        /// <summary>
+        /// Добавить провайдера Bot Framework
+        /// </summary>
+        /// <param name="baseUri"></param>
+        /// <param name="appCredentials"></param>
+        /// <param name="userAccount"></param>
+        /// <param name="botAccount"></param>
+        /// <param name="conversationId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="fromId"></param>
+        void AddProviderClient(Uri baseUri, MicrosoftAppCredentials appCredentials, ChannelAccount userAccount, ChannelAccount botAccount, string conversationId, string channelId, string fromId);
+
+        /// <summary>
+        /// Проверка наличия Client Provider
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="fromId"></param>
+        /// <returns></returns>
+        bool ExistProviderClient(string conversationId, string channelId, string fromId);
+
+        /// <summary>
+        /// Создание идентификатора
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="fromId"></param>
+        /// <returns></returns>
+        string CreateIdentificator(string conversationId, string channelId, string fromId);
+
+        /// <summary>
+        /// Проактивная отправка сообщения 
+        /// </summary>
+        /// <param name="message">Сообщение</param>
+        /// <returns></returns>
+        Task SendMessage(Message message);
+
+        Message ActivityToMessage(Activity activity, string idUser);
+    }
+
     /// <summary>
     /// Microsoft Bot Framework
     /// </summary>
-    public class BotFramework
+    public class BotFramework : IBotFramework
     {
         /// <summary>
         /// Список для хранения клиентов
@@ -97,6 +139,36 @@ namespace ConnectorHost.Providers
             // message.Locale = "en-Us";
             await ProviderClients[message.IdUser].ConnectorClient.Conversations.SendToConversationAsync((Activity)activity);
             //await SendMessageActivity(message.IdUser, (Activity)activity);
+            
+        }
+
+        public Message ActivityToMessage(Activity activity, string idUser)
+        {
+            var message = new Message();
+            message.Id = activity.Id;
+            message.IdUser = idUser;
+            //Текст
+            if (activity.Text != null)
+                message.Text = activity.Text;
+            //Дата
+            if (activity.Timestamp != null)
+                message.Date = (DateTime) activity.Timestamp;
+            //Мессенджер
+            message.Messanger = activity.ChannelId;
+            //Вложения
+            if (activity.Attachments != null)
+            {
+                message.Attachments = new List<Message.Attachment>();
+                foreach (var activityAttachment in activity.Attachments)
+                {
+                    var attachment = new Message.Attachment();
+                    attachment.ContentType = activityAttachment.ContentType;
+                    attachment.ContentUrl = activityAttachment.ContentUrl;
+                    attachment.Name = activityAttachment.Name;
+                }
+            }
+            
+            return message;
         }
 
         /// <summary>

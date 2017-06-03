@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ConnectorHost.Providers;
 
-namespace ConnectorHost
+namespace ConnectorHost.Providers
 {
-    public interface IConnectorService
+    /// <summary>
+    /// User Service Interface 
+    /// </summary>
+    public interface IUsersService
     {
-        /// <summary>
-        /// Bot Framework Provider
-        /// </summary>
-        BotFramework BotFrameworkProvider { get; set; }
 
         /// <summary>
         /// Проверка наличия пользователя в коллекции.
@@ -32,14 +28,14 @@ namespace ConnectorHost
         /// </summary>
         /// <param name="id">Идентификатор</param>
         /// <param name="provider">provider</param>
-        /// <param name="information">Техническая информация</param>
-        void AddUser(string id, Provider provider, object information);
+        /// <param name="sender">Делегат обратный отправщик сообщений</param>
+        void AddUser(string id, Providers provider, UsersService.SenderMessage sender);
     }
 
     /// <summary>
-    /// Connector Service
+    /// User Service
     /// </summary>
-    public class ConnectorService : IConnectorService
+    public class UsersService : IUsersService
     {
         /// <summary>
         ///Делегат проброски проактивной отправки сообщений
@@ -48,14 +44,7 @@ namespace ConnectorHost
         /// <returns></returns>
         public delegate Task SenderMessage(Message message);
 
-        #region Провайдеры
-
-        /// <summary>
-        /// Bot Framework Provider
-        /// </summary>
-        public BotFramework BotFrameworkProvider { get; set; } = new BotFramework();
-
-        #endregion
+        
 
         /// <summary>
         /// Коллекция для хранения позьзователей
@@ -80,16 +69,22 @@ namespace ConnectorHost
         {
             return _usersDictionary[id];
         }
+
         /// <summary>
         /// Добавление пользовалтеля
         /// </summary>
         /// <param name="id">Идентификатор</param>
         /// <param name="provider">provider</param>
-        /// <param name="information">Техническая информация</param>
-        public void AddUser(string id, Provider provider, object information)
+        /// <param name="sender">Делегат обратный отправщик сообщений</param>
+        public void AddUser(string id, Providers provider, SenderMessage sender)
         {
             //Создание пользователя
-            var user = new User();
+            var user = new User
+            {
+                Id = id,
+                Provider = provider,
+                Sender = sender
+            };
             //Добавление в коллекцию
             _usersDictionary.Add(id,user);
         }

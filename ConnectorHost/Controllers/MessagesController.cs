@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ConnectorHost.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
@@ -14,11 +15,18 @@ namespace ConnectorHost.Controllers
     [Route("api/[controller]")]
     public class MessagesController : Controller
     {
-        public MessagesController(IConnectorService connectorService, IConfigurationRoot configuration)
+        /// <summary>
+        /// Конструктор контроллера
+        /// </summary>
+        /// <param name="usersesService"></param>
+        /// <param name="bfService"></param>
+        /// <param name="configuration"></param>
+        public MessagesController(IUsersService usersesService, IBotFramework bfService, IConfigurationRoot configuration)
         {
             _configuration = configuration;
             _appCredentials = new MicrosoftAppCredentials(this._configuration);
-            _service = connectorService;
+            _usersService = usersesService;
+            _bfService = bfService;
         }
         /// <summary>
         /// Экземпляр сервиса с конфигурацией 
@@ -29,56 +37,57 @@ namespace ConnectorHost.Controllers
         /// Сертификат microsoft bot framework
         /// </summary>
         private MicrosoftAppCredentials _appCredentials;
+
         /// <summary>
-        /// Service
+        /// Users Service
         /// </summary>
-        private readonly IConnectorService _service;
+        private readonly IUsersService _usersService;
 
+        #region Services Provider
 
+        /// <summary>
+        /// Bot Framework Provider Service
+        /// </summary>
+        private readonly IBotFramework _bfService;
+
+        #endregion
+
+        /// <summary>
+        /// Конечная точка для сообщений из Microsoft Bot Framework
+        /// </summary>
+        /// <param name="activity">Объект сообщения</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("botframework")]
-        public virtual async Task<OkResult> PostBotFramework([FromBody]Activity activity)
+        public virtual async Task<OkResult> PostBotFramework([FromBody]Activity activity) 
         {
             //Проверка наличия Client Provider
-            if (!_service.BotFrameworkProvider.ExistProviderClient(activity.Conversation.Id, activity.ChannelId,
+            if (!_bfService.ExistProviderClient(activity.Conversation.Id, activity.ChannelId,
                 activity.From.Id))
             {
-                _service.BotFrameworkProvider.AddProviderClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
+                _bfService.AddProviderClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
                 //Создание id по шаблону
-                var id = _service.BotFrameworkProvider.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
                 activity.From.Id);
                 //Проверка наличия пользовалея
-                if (!_service.ExistUser(id))
+                if (!_usersService.ExistUser(id))
                 {
-                    _service.AddUser(id, Provider.BotFramework, null);
+                    //Добавление пользователя
+                    _usersService.AddUser(id, Providers.Providers.BotFramework, _bfService.SendMessage);
                 }
             }
 
+            //if message
             if (activity.Type == ActivityTypes.Message)
             {
-                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
-                //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
-                //await connector.Conversations.ReplyToActivityAsync(reply);
-
+                //Генерация id
+                var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                    activity.From.Id);
+               
                 //Отправка сообщения на обработку
-                _service.GetUser(_service.BotFrameworkProvider.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
-                activity.From.Id)).InPoint()
+                //Можно поставить выполнение в ассинхронном режиме
+               await _usersService.GetUser(id).InPoint(_bfService.ActivityToMessage(activity, id));
             }
-
-
-            //if (activity.Type == ActivityTypes.Message)
-            //{
-            //    //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
-            //    //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
-            //    //await connector.Conversations.ReplyToActivityAsync(reply);
-
-            //    //Отправка сообщения на обработку
-            //    _botService.InMethod(activity);
-            //}
-            //else
-            //{
-            //    // reply.Text = $"activity type: {activity.Type}";
-            //}
             return Ok();
         }
 

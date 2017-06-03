@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ConnectorHost.Providers;
 
 namespace ConnectorHost
 {
@@ -18,49 +19,53 @@ namespace ConnectorHost
         /// <summary>
         /// Провайдер 
         /// </summary>
-        public Provider Provider { get; set; }
+        public Providers.Providers Provider { get; set; }
 
         /// <summary>
         /// Обратный отправщик сообщений 
         /// </summary>
-        public ConnectorService.SenderMessage Sender { get; set; }
-
+        public UsersService.SenderMessage Sender { get; set; }
         /// <summary>
-        /// Информация для подключения 
+        /// Язык пользователя
         /// </summary>
-        public object Information { get; set; }
+        public Language Language { get; set; }
+
         /// <summary>
         /// Входная точка для приёма сообщений
         /// </summary>
         /// <param name="message">Сообщение</param>
         /// <returns></returns>
-        public async Task InPoint(object message)
+        public async Task InPoint(Message message)
         {
             
         }
-        
+    }
+    /// <summary>
+    /// Перечисление языков
+    /// </summary>
+    public enum Language
+    {
+        Russian, English
     }
 
     /// <summary>
-    /// Множество провайдеров, мессенджеров
+    /// Внутренние состояния объекта User
     /// </summary>
-    public enum Provider
+    public enum UserState
     {
         /// <summary>
-        /// Microsoft Bot Framework
+        /// Старт взаимодействия с пользователем
         /// </summary>
-        BotFramework,
+        Started,
         /// <summary>
-        /// Viber
+        /// Выбор языка
         /// </summary>
-        Viber,
+        Selectlanguage,
         /// <summary>
-        /// Вконтакте 
+        /// Маршрутизация сообщений на Sender API
         /// </summary>
-        Vkontakte,
-        /// <summary>
-        /// Смс
-        /// </summary>
-        Sms
+        RouteMessage
     }
+
+
 }
