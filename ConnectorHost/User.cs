@@ -15,7 +15,7 @@ namespace ConnectorHost
         /// Идентификатор пользователя
         /// </summary>
         public string Id { get; set; }
-        
+
         /// <summary>
         /// Провайдер 
         /// </summary>
@@ -29,7 +29,10 @@ namespace ConnectorHost
         /// Язык пользователя
         /// </summary>
         public Language Language { get; set; }
-
+        /// <summary>
+        /// Состояние пользователя
+        /// </summary>
+        public UserState State { get; set; }
         /// <summary>
         /// Входная точка для приёма сообщений
         /// </summary>
@@ -37,7 +40,25 @@ namespace ConnectorHost
         /// <returns></returns>
         public async Task InPoint(Message message)
         {
-            
+            //Реализация хранения состояния пользователя
+            switch (State)
+            {
+                case UserState.Started:
+                    {
+
+                    }
+                    break;
+                case UserState.Selectlanguage:
+                    {
+
+                    }
+                    break;
+                case UserState.RouteMessage:
+                    {
+
+                    }
+                    break;
+            }
         }
     }
     /// <summary>
@@ -62,9 +83,14 @@ namespace ConnectorHost
         /// </summary>
         Selectlanguage,
         /// <summary>
+        /// Уточнение идентификатора комнаты
+        /// </summary>
+        GetIdTeam,
+        /// <summary>
         /// Маршрутизация сообщений на Sender API
         /// </summary>
         RouteMessage
+
     }
 
 

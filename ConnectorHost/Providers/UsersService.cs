@@ -83,7 +83,9 @@ namespace ConnectorHost.Providers
             {
                 Id = id,
                 Provider = provider,
-                Sender = sender
+                Sender = sender,
+                State = UserState.Started
+                
             };
             //Добавление в коллекцию
             _usersDictionary.Add(id,user);

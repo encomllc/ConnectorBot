@@ -79,9 +79,9 @@ namespace ConnectorHost.Providers
             botClient.ChannelId = channelId;
             botClient.ConversationId = conversationId;
             botClient.FromId = fromId;
-            ProviderClients.Add(CreateIdentificator(conversationId, channelId,fromId), botClient);
+            ProviderClients.Add(CreateIdentificator(conversationId, channelId, fromId), botClient);
         }
-        
+
         /// <summary>
         /// Проверка наличия Client Provider
         /// </summary>
@@ -124,22 +124,28 @@ namespace ConnectorHost.Providers
             //    case "emulator":
             //        { }
             //        break;
-
             //}
 
-            //if (message.Attachments != null)
-            //{
-            //    message.ChannelData = message.Attachments;
-            //}
-            //else
-            //{
+            //Загрузка вложений
+            if (message.Attachments != null)
+            {
+                //activity.Attachments = new Attachments();
+                foreach (var messageAttachment in message.Attachments)
+                {
+                    var attachment = new Attachment();
+                    attachment.ContentType = messageAttachment.ContentType;
+                    attachment.ContentUrl = messageAttachment.ContentUrl;
+                    attachment.Name = messageAttachment.Name;
+
+                    activity.Attachments.Add(attachment);
+                }
+            }
+
+            //Текст
             activity.Text = message.Text;
-            //}
 
             // message.Locale = "en-Us";
             await ProviderClients[message.IdUser].ConnectorClient.Conversations.SendToConversationAsync((Activity)activity);
-            //await SendMessageActivity(message.IdUser, (Activity)activity);
-            
         }
 
         public Message ActivityToMessage(Activity activity, string idUser)
@@ -152,7 +158,7 @@ namespace ConnectorHost.Providers
                 message.Text = activity.Text;
             //Дата
             if (activity.Timestamp != null)
-                message.Date = (DateTime) activity.Timestamp;
+                message.Date = (DateTime)activity.Timestamp;
             //Мессенджер
             message.Messanger = activity.ChannelId;
             //Вложения
@@ -167,7 +173,7 @@ namespace ConnectorHost.Providers
                     attachment.Name = activityAttachment.Name;
                 }
             }
-            
+
             return message;
         }
 
@@ -189,6 +195,6 @@ namespace ConnectorHost.Providers
             public string ChannelId { get; set; }
             public string FromId { get; set; }
         }
-        
+
     }
 }
