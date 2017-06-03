@@ -73,7 +73,7 @@ namespace ConnectorHost.Controllers
                 if (!_usersService.ExistUser(id))
                 {
                     //Добавление пользователя
-                    _usersService.AddUser(id, Providers.Providers.BotFramework, _bfService.SendMessage);
+                    _usersService.AddUser(id, activity.ChannelId, _bfService.SendMessage);
                 }
             }
 

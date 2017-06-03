@@ -70,6 +70,10 @@ namespace ConnectorHost.Resources
         /// </summary>
         ErrorSelectLanguage,
         /// <summary>
+        /// Spam выбор языка
+        /// </summary>
+        SpamSelectLanguage,
+        /// <summary>
         /// Просьба прислать идентификатор комнаты
         /// </summary>
         GetIdTeam,
@@ -78,12 +82,20 @@ namespace ConnectorHost.Resources
         /// </summary>
         ErrorIdTeam,
         /// <summary>
+        /// Спам во время проверки идентификатора комнаты
+        /// </summary>
+        SpamIdTeam,
+        /// <summary>
         /// Успешная проверка id комнаты
         /// </summary>
         SucessIdTeam,
         /// <summary>
         /// Старт маршрутизации сообщений на API
         /// </summary>
-        StartRoutingMessage
+        StartRoutingMessage,
+        /// <summary>
+        /// Закрытие сессии
+        /// </summary>
+        EndSession,
     }
 }

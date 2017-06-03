@@ -27,9 +27,10 @@ namespace ConnectorHost.Providers
         /// Добавление пользовалтеля
         /// </summary>
         /// <param name="id">Идентификатор</param>
-        /// <param name="provider">provider</param>
+        /// <param name="messenger">Мессенджер</param>
         /// <param name="sender">Делегат обратный отправщик сообщений</param>
-        void AddUser(string id, Providers provider, UsersService.SenderMessage sender);
+        void AddUser(string id, string messenger, UsersService.SenderMessageDelagate sender);
+
     }
 
     /// <summary>
@@ -42,14 +43,21 @@ namespace ConnectorHost.Providers
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public delegate Task SenderMessage(Message message);
+        public delegate Task SenderMessageDelagate(Message message);
 
-        
+        public delegate Task<bool> ExistIdTeamDelegate(string idTeam);
+
+
 
         /// <summary>
         /// Коллекция для хранения позьзователей
         /// </summary>
         private readonly Dictionary<string, User> _usersDictionary = new Dictionary<string, User>();
+
+        /// <summary>
+        /// Список идентификаторов Team кеш
+        /// </summary>
+        private List<string> _idTeam = new List<string>(){"1"};
 
         /// <summary>
         /// Проверка наличия пользователя в коллекции.
@@ -74,21 +82,59 @@ namespace ConnectorHost.Providers
         /// Добавление пользовалтеля
         /// </summary>
         /// <param name="id">Идентификатор</param>
-        /// <param name="provider">provider</param>
+        /// <param name="messenger">Мессенджер</param>
         /// <param name="sender">Делегат обратный отправщик сообщений</param>
-        public void AddUser(string id, Providers provider, SenderMessage sender)
+        public void AddUser(string id, string messenger, SenderMessageDelagate sender)
         {
             //Создание пользователя
             var user = new User
             {
                 Id = id,
-                Provider = provider,
+                Messenger = messenger,
                 Sender = sender,
-                State = UserState.Started
+                State = UserState.Started,
+                ExistIdTeam = ExistIdTeam
                 
             };
             //Добавление в коллекцию
             _usersDictionary.Add(id,user);
         }
+        /// <summary>
+        /// Проверка наличия id team 
+        /// </summary>
+        /// <param name="idTeam"></param>
+        /// <returns></returns>
+        public async Task<bool> ExistIdTeam(string idTeam)
+        {
+            //Проверка наличия id в кеше
+            if (_idTeam.Contains(idTeam))
+            {
+                return true;
+            }
+            else
+            {
+                //Получение id у API
+                var id = await GetIdTeamApi(idTeam);
+                //Проверка на корректность если введённый равен полученному то ОК
+                if (id == idTeam)
+                {
+                    _idTeam.Add(id);
+                    return true;
+                }
+            }
+           
+            return false;
+        }
+
+        /// <summary>
+        /// Заглушка для полноценной проверки у API
+        /// </summary>
+        /// <param name="idTeam"></param>
+        /// <returns></returns>
+        public async Task<string> GetIdTeamApi(string idTeam)
+        {
+            return "not exist";
+        }
+
     }
 }
