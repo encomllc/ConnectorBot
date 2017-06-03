@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Bot.Connector;
+using Microsoft.Extensions.Configuration;
 
 namespace ConnectorHost.Controllers
 {
@@ -12,9 +14,77 @@ namespace ConnectorHost.Controllers
     [Route("api/[controller]")]
     public class MessagesController : Controller
     {
+        public MessagesController(IConnectorService connectorService, IConfigurationRoot configuration)
+        {
+            _configuration = configuration;
+            _appCredentials = new MicrosoftAppCredentials(this._configuration);
+            _service = connectorService;
+        }
+        /// <summary>
+        /// Экземпляр сервиса с конфигурацией 
+        /// </summary>
+        private readonly IConfigurationRoot _configuration;
+
+        /// <summary>
+        /// Сертификат microsoft bot framework
+        /// </summary>
+        private MicrosoftAppCredentials _appCredentials;
+        /// <summary>
+        /// Service
+        /// </summary>
+        private readonly IConnectorService _service;
+
+
         [HttpPost]
-        [Route("BotFramework")]
-        public virtual async Task<OkResult> Post([FromBody]object activity)
+        [Route("botframework")]
+        public virtual async Task<OkResult> PostBotFramework([FromBody]Activity activity)
+        {
+            //Проверка наличия Client Provider
+            if (!_service.BotFrameworkProvider.ExistProviderClient(activity.Conversation.Id, activity.ChannelId,
+                activity.From.Id))
+            {
+                _service.BotFrameworkProvider.AddProviderClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
+                //Создание id по шаблону
+                var id = _service.BotFrameworkProvider.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                activity.From.Id);
+                //Проверка наличия пользовалея
+                if (!_service.ExistUser(id))
+                {
+                    _service.AddUser(id, Provider.BotFramework, null);
+                }
+            }
+
+            if (activity.Type == ActivityTypes.Message)
+            {
+                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
+                //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
+                //await connector.Conversations.ReplyToActivityAsync(reply);
+
+                //Отправка сообщения на обработку
+                _service.GetUser(_service.BotFrameworkProvider.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                activity.From.Id)).InPoint()
+            }
+
+
+            //if (activity.Type == ActivityTypes.Message)
+            //{
+            //    //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
+            //    //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
+            //    //await connector.Conversations.ReplyToActivityAsync(reply);
+
+            //    //Отправка сообщения на обработку
+            //    _botService.InMethod(activity);
+            //}
+            //else
+            //{
+            //    // reply.Text = $"activity type: {activity.Type}";
+            //}
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("viber")]
+        public virtual async Task<OkResult> PostViber([FromBody]object activity)
         {
             //if (!_botService.ExistBotClient(activity.Conversation.Id, activity.ChannelId, activity.From.Id))
             //{
@@ -36,6 +106,58 @@ namespace ConnectorHost.Controllers
             //}
             return Ok();
         }
+
+        [HttpPost]
+        [Route("vkontakte")]
+        public virtual async Task<OkResult> PostVKontakte([FromBody]object activity)
+        {
+            //if (!_botService.ExistBotClient(activity.Conversation.Id, activity.ChannelId, activity.From.Id))
+            //{
+            //    _botService.AddBotClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
+            //}
+
+            //if (activity.Type == ActivityTypes.Message)
+            //{
+            //    //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
+            //    //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
+            //    //await connector.Conversations.ReplyToActivityAsync(reply);
+
+            //    //Отправка сообщения на обработку
+            //    _botService.InMethod(activity);
+            //}
+            //else
+            //{
+            //    // reply.Text = $"activity type: {activity.Type}";
+            //}
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("sms")]
+        public virtual async Task<OkResult> PostSms([FromBody]object activity)
+        {
+            //if (!_botService.ExistBotClient(activity.Conversation.Id, activity.ChannelId, activity.From.Id))
+            //{
+            //    _botService.AddBotClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
+            //}
+
+            //if (activity.Type == ActivityTypes.Message)
+            //{
+            //    //Activity reply = activity.CreateReply($"You sent {activity.Text} which was  characters");
+            //    //var connector = new ConnectorClient(new Uri(activity.ServiceUrl), _appCredentials);
+            //    //await connector.Conversations.ReplyToActivityAsync(reply);
+
+            //    //Отправка сообщения на обработку
+            //    _botService.InMethod(activity);
+            //}
+            //else
+            //{
+            //    // reply.Text = $"activity type: {activity.Type}";
+            //}
+            return Ok();
+        }
+
+
 
         #region Demo
 
