@@ -3,7 +3,37 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectorHostDemo", "ConnectorHostDemo\ConnectorHostDemo.csproj", "{F23E425C-4EC8-4133-BC21-7924D19181F2}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "NodejsConsoleApp", "NodejsConsoleApp\NodejsConsoleApp.njsproj", "{8C981C22-0BB4-4EA8-8804-BF7DBE47C38D}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "ViberHost", "ViberHost\ViberHost.njsproj", "{B9F8C902-D629-4B2F-BA9E-8F8B10C3A516}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectorHost", "ConnectorHost\ConnectorHost.csproj", "{35361538-DFF1-46F6-ADF4-E2A248AE7B5C}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F23E425C-4EC8-4133-BC21-7924D19181F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F23E425C-4EC8-4133-BC21-7924D19181F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F23E425C-4EC8-4133-BC21-7924D19181F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F23E425C-4EC8-4133-BC21-7924D19181F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C981C22-0BB4-4EA8-8804-BF7DBE47C38D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C981C22-0BB4-4EA8-8804-BF7DBE47C38D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C981C22-0BB4-4EA8-8804-BF7DBE47C38D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C981C22-0BB4-4EA8-8804-BF7DBE47C38D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9F8C902-D629-4B2F-BA9E-8F8B10C3A516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9F8C902-D629-4B2F-BA9E-8F8B10C3A516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9F8C902-D629-4B2F-BA9E-8F8B10C3A516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9F8C902-D629-4B2F-BA9E-8F8B10C3A516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35361538-DFF1-46F6-ADF4-E2A248AE7B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35361538-DFF1-46F6-ADF4-E2A248AE7B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35361538-DFF1-46F6-ADF4-E2A248AE7B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35361538-DFF1-46F6-ADF4-E2A248AE7B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
