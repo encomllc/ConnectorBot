@@ -29,7 +29,7 @@ namespace ConnectorHost
         /// <summary>
         /// Язык пользователя
         /// </summary>
-        public Language Language { get; set; }
+        public Language Language { get; set; } = Language.Russian;
         /// <summary>
         /// Состояние пользователя
         /// </summary>
@@ -65,8 +65,6 @@ namespace ConnectorHost
 
         #endregion
 
-
-
         /// <summary>
         /// Входная точка для приёма сообщений
         /// </summary>
@@ -74,7 +72,55 @@ namespace ConnectorHost
         /// <returns></returns>
         public async Task InPoint(Message message)
         {
+
+            #region Command Exit
+
+            //Проверка на команды выходы из сессии
             var testExit = message.Text.ToLower();
+            if (testExit == "exit")
+            {
+                await Sender(ContentToMessage(_text.GetText(NemeText.ExitSession, Language)));
+                //Перевод состояния в ожидание idTeam
+                State = UserState.SpamGetIdTeam;
+                return;
+            }
+
+            #endregion
+
+            #region Время и Speed Messaging
+
+            //Вычисление времени последней активности 
+            var time = message.Date.Subtract(LastTimeActive);
+            //Проверка высокой скорости отправки сообщений 
+            //Чаще 1 сообщения в 15 секунд
+            if (time.TotalSeconds < 15)
+            {
+                //Увеличение счётчика нарушений
+                CountSpeedMessage++;
+                //Нарушение 3 раза
+                if (CountSpeedMessage > 3)
+                {
+                    await Sender(ContentToMessage(_text.GetText(NemeText.SpeedMessaging, Language)));
+                }
+                //Нарушение 5 раз
+                if (CountSpeedMessage > 5)
+                {
+                    await Sender(ContentToMessage(_text.GetText(NemeText.SpamSpeedMessaging, Language)));
+                    State = UserState.SpamSpeedMessaging;
+                }
+            }
+            else
+            {
+                //Обнуляем счётчик
+                CountSpeedMessage = 0;
+            }
+
+            //Присвеваем время последней активности
+            LastTimeActive = message.Date;
+
+            #endregion
+
+
             //Реализация хранения состояния пользователя
             switch (State)
             {
@@ -181,10 +227,20 @@ namespace ConnectorHost
                     break;
                 case UserState.RouteMessage://Роутинг сообщений в API
                     {
-
+                        // TODO Добавить код
                     }
                     break;
             }
+        }
+        /// <summary>
+        /// Метод закрытия сесси по времени 
+        /// </summary>
+        public async Task CloseTimeSession()
+        {
+            //Присваеваем состояние ожидания id Team
+            State = UserState.SelectGetIdTeam;
+            await Sender(ContentToMessage(_text.GetText(NemeText.ExitTimeSession, Language)));
+
         }
 
         /// <summary>
@@ -241,7 +297,12 @@ namespace ConnectorHost
         /// <summary>
         /// Маршрутизация сообщений на Sender API
         /// </summary>
-        RouteMessage
+        RouteMessage,
+        /// <summary>
+        /// Спам по скорости отправки сообщений
+        /// </summary>
+        SpamSpeedMessaging
+            
 
     }
 

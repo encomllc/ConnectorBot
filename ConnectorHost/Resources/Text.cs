@@ -94,8 +94,20 @@ namespace ConnectorHost.Resources
         /// </summary>
         StartRoutingMessage,
         /// <summary>
+        /// Высокая скорость отправки сообщений
+        /// </summary>
+        SpeedMessaging,
+        /// <summary>
+        /// Спам по скорости отправки сообщений
+        /// </summary>
+        SpamSpeedMessaging,
+        /// <summary>
         /// Закрытие сессии
         /// </summary>
-        EndSession,
+        ExitSession,
+        /// <summary>
+        /// Закрытие сессии по таймеру
+        /// </summary>
+        ExitTimeSession
     }
 }
