@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -47,6 +48,8 @@ namespace ConnectorHost.Providers
         Task SendMessage(Message message);
 
         Message ActivityToMessage(Activity activity, string idUser);
+        ConcurrentDictionary<string, BotClient> ProviderClients { get; set; }
+
     }
 
     /// <summary>
@@ -57,7 +60,8 @@ namespace ConnectorHost.Providers
         /// <summary>
         /// Список для хранения клиентов
         /// </summary>
-        private Dictionary<string, BotClient> ProviderClients { get; set; } = new Dictionary<string, BotClient>();
+        public ConcurrentDictionary<string, BotClient> ProviderClients { get; set; } = new ConcurrentDictionary<string, BotClient>();
+
 
         /// <summary>
         /// Добавить провайдера Bot Framework
@@ -79,7 +83,9 @@ namespace ConnectorHost.Providers
             botClient.ChannelId = channelId;
             botClient.ConversationId = conversationId;
             botClient.FromId = fromId;
-            ProviderClients.Add(CreateIdentificator(conversationId, channelId, fromId), botClient);
+            if(!ProviderClients.ContainsKey(CreateIdentificator(conversationId, channelId, fromId)))
+            ProviderClients.TryAdd(CreateIdentificator(conversationId, channelId, fromId), botClient);
+            
         }
 
         /// <summary>
@@ -177,24 +183,26 @@ namespace ConnectorHost.Providers
             return message;
         }
 
-        /// <summary>
-        /// Технической класс для работыс Bot Framework
-        /// </summary>
-        public class BotClient
-        {
-            public BotClient()
-            {
-                //var conversationId = await ConnectorClient.Conversations.CreateDirectConversationAsync(BotAccount, UserAccount);
-                //conversationId.Id
-            }
-            public MicrosoftAppCredentials AppCredentials { get; set; } = new MicrosoftAppCredentials();
-            public ChannelAccount UserAccount { get; set; } = new ChannelAccount();
-            public ChannelAccount BotAccount { get; set; } = new ChannelAccount();
-            public ConnectorClient ConnectorClient { get; set; }
-            public string ConversationId { get; set; }
-            public string ChannelId { get; set; }
-            public string FromId { get; set; }
-        }
+       
 
     }
+    /// <summary>
+    /// Технической класс для работыс Bot Framework
+    /// </summary>
+    public class BotClient
+    {
+        public BotClient()
+        {
+            //var conversationId = await ConnectorClient.Conversations.CreateDirectConversationAsync(BotAccount, UserAccount);
+            //conversationId.Id
+        }
+        public MicrosoftAppCredentials AppCredentials { get; set; } = new MicrosoftAppCredentials();
+        public ChannelAccount UserAccount { get; set; } = new ChannelAccount();
+        public ChannelAccount BotAccount { get; set; } = new ChannelAccount();
+        public ConnectorClient ConnectorClient { get; set; }
+        public string ConversationId { get; set; }
+        public string ChannelId { get; set; }
+        public string FromId { get; set; }
+    }
 }
+

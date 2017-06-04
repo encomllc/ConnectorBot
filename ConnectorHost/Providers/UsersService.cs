@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -77,7 +78,7 @@ namespace ConnectorHost.Providers
         /// <summary>
         /// Коллекция для хранения позьзователей
         /// </summary>
-        private readonly Dictionary<string, User> _usersDictionary = new Dictionary<string, User>();
+        private readonly ConcurrentDictionary<string, User> _usersDictionary = new ConcurrentDictionary<string, User>();
 
         /// <summary>
         /// Список идентификаторов Team кеш
@@ -130,7 +131,7 @@ namespace ConnectorHost.Providers
                 GetCycle = GetCycle
             };
             //Добавление в коллекцию
-            _usersDictionary.Add(id, user);
+            _usersDictionary.TryAdd(id, user);
         }
         /// <summary>
         /// Проверка наличия id team 
@@ -177,30 +178,34 @@ namespace ConnectorHost.Providers
             Cycle++;
 
             //Разбан spam Select Language
-            foreach (var user in _usersDictionary.Where(x => x.Value.State == UserState.SpamSelectlanguage))
+            foreach (var user in _usersDictionary.Values.Where(x => x.State == UserState.SpamSelectlanguage))
             {
                 //+6 = 30 минут
                 //+12 = 60 минут
-                if (user.Value.СycleEvent + 6 < Cycle)
-                    user.Value.State = UserState.SelectGetIdTeam;
+                if (user.СycleEvent + 6 < Cycle)
+                    user.State = UserState.SelectGetIdTeam;
+                user.CountErrorSelectLenguage = 0;
             }
             //Разбан spam Get Id Team
-            foreach (var user in _usersDictionary.Where(x=>x.Value.State== UserState.SpamGetIdTeam))
+            foreach (var user in _usersDictionary.Values.Where(x=>x.State== UserState.SpamGetIdTeam))
             {
                 //+6 = 30 минут
                 //+12 = 60 минут
-                if (user.Value.СycleEvent + 12 < Cycle)
-                    user.Value.State = UserState.SelectGetIdTeam;
+                if (user.СycleEvent + 12 < Cycle)
+                    user.State = UserState.SelectGetIdTeam;
+                user.CountErrorSelectTeamId = 0;
             }
 
             //Разбан spam Speed Messaging 
-            foreach (var user in _usersDictionary.Where(x=>x.Value.State== UserState.SpamSpeedMessaging))
+            foreach (var user in _usersDictionary.Values.Where(x=>x.State== UserState.SpamSpeedMessaging))
             {   
                 //+3 = 15 минут
                 //+6 = 30 минут
                 //+12 = 60 минут
-                if (user.Value.СycleEvent + 3 < Cycle)
-                    user.Value.State = UserState.SelectGetIdTeam;
+                if (user.СycleEvent + 3 < Cycle)
+                    user.State = UserState.SelectGetIdTeam;
+                user.CountSpeedMessage = 0;
+                
             }
 
             //Закрытие Routing сессий в которых нет активности на протяжении 30 минут

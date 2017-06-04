@@ -1,0 +1,594 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ConnectorHost</name>
+    </assembly>
+    <members>
+        <member name="T:ConnectorHost.Controllers.MessagesController">
+            <summary>
+            Контроллер приёма сообщений
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Controllers.MessagesController.#ctor(ConnectorHost.Providers.IUsersService,ConnectorHost.Providers.IBotFramework,Microsoft.Extensions.Configuration.IConfigurationRoot)">
+            <summary>
+            Конструктор контроллера
+            </summary>
+            <param name="usersesService"></param>
+            <param name="bfService"></param>
+            <param name="configuration"></param>
+        </member>
+        <member name="F:ConnectorHost.Controllers.MessagesController._configuration">
+            <summary>
+            Экземпляр сервиса с конфигурацией 
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Controllers.MessagesController._appCredentials">
+            <summary>
+            Сертификат microsoft bot framework
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Controllers.MessagesController._usersService">
+            <summary>
+            Users Service
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Controllers.MessagesController._bfService">
+            <summary>
+            Bot Framework Provider Service
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Controllers.MessagesController.PostBotFramework(Microsoft.Bot.Connector.Activity)">
+            <summary>
+            Конечная точка для сообщений из Microsoft Bot Framework
+            </summary>
+            <param name="activity">Объект сообщения</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Message">
+            <summary>
+            Объект сообщение
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Id">
+            <summary>
+            Идентификатор сообщения
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.IdUser">
+            <summary>
+            Идентификатор пользователя
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Text">
+            <summary>
+            Текст
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Date">
+            <summary>
+            Дата
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Messanger">
+            <summary>
+            Мессенджер 
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Attachments">
+            <summary>
+            Вложения
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.Message.Attachment">
+            <summary>
+            Объект вложения
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Attachment.ContentType">
+            <summary>
+            Типа
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Attachment.ContentUrl">
+            <summary>
+            Адрес
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Message.Attachment.Name">
+            <summary>
+            Название
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Providers.IBotFramework.AddProviderClient(System.Uri,Microsoft.Bot.Connector.MicrosoftAppCredentials,Microsoft.Bot.Connector.ChannelAccount,Microsoft.Bot.Connector.ChannelAccount,System.String,System.String,System.String)">
+            <summary>
+            Добавить провайдера Bot Framework
+            </summary>
+            <param name="baseUri"></param>
+            <param name="appCredentials"></param>
+            <param name="userAccount"></param>
+            <param name="botAccount"></param>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+        </member>
+        <member name="M:ConnectorHost.Providers.IBotFramework.ExistProviderClient(System.String,System.String,System.String)">
+            <summary>
+            Проверка наличия Client Provider
+            </summary>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.IBotFramework.CreateIdentificator(System.String,System.String,System.String)">
+            <summary>
+            Создание идентификатора
+            </summary>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.IBotFramework.SendMessage(ConnectorHost.Message)">
+            <summary>
+            Проактивная отправка сообщения 
+            </summary>
+            <param name="message">Сообщение</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Providers.BotFramework">
+            <summary>
+            Microsoft Bot Framework
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Providers.BotFramework.ProviderClients">
+            <summary>
+            Список для хранения клиентов
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Providers.BotFramework.AddProviderClient(System.Uri,Microsoft.Bot.Connector.MicrosoftAppCredentials,Microsoft.Bot.Connector.ChannelAccount,Microsoft.Bot.Connector.ChannelAccount,System.String,System.String,System.String)">
+            <summary>
+            Добавить провайдера Bot Framework
+            </summary>
+            <param name="baseUri"></param>
+            <param name="appCredentials"></param>
+            <param name="userAccount"></param>
+            <param name="botAccount"></param>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+        </member>
+        <member name="M:ConnectorHost.Providers.BotFramework.ExistProviderClient(System.String,System.String,System.String)">
+            <summary>
+            Проверка наличия Client Provider
+            </summary>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.BotFramework.CreateIdentificator(System.String,System.String,System.String)">
+            <summary>
+            Создание идентификатора
+            </summary>
+            <param name="conversationId"></param>
+            <param name="channelId"></param>
+            <param name="fromId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.BotFramework.SendMessage(ConnectorHost.Message)">
+            <summary>
+            Проактивная отправка сообщения 
+            </summary>
+            <param name="message">Сообщение</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Providers.BotFramework.BotClient">
+            <summary>
+            Технической класс для работыс Bot Framework
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.Providers.Providers">
+            <summary>
+            Перечисление провайдеров, мессенджеров
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.Providers.BotFramework">
+            <summary>
+            Microsoft Bot Framework
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.Providers.Viber">
+            <summary>
+            Viber
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.Providers.Vkontakte">
+            <summary>
+            Вконтакте 
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.Providers.Sms">
+            <summary>
+            Смс
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.Providers.IUsersService">
+            <summary>
+            User Service Interface 
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Providers.IUsersService.ExistUser(System.String)">
+            <summary>
+            Проверка наличия пользователя в коллекции.
+            </summary>
+            <param name="id">Идентификатор</param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.IUsersService.GetUser(System.String)">
+            <summary>
+            Получление объект пользователь
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.IUsersService.AddUser(System.String,System.String,ConnectorHost.Providers.UsersService.SenderMessageDelagate)">
+            <summary>
+            Добавление пользовалтеля
+            </summary>
+            <param name="id">Идентификатор</param>
+            <param name="messenger">Мессенджер</param>
+            <param name="sender">Делегат обратный отправщик сообщений</param>
+        </member>
+        <member name="T:ConnectorHost.Providers.UsersService">
+            <summary>
+            User Service
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.#ctor">
+            <summary>
+            Конструктор UsersService
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.Providers.UsersService.SenderMessageDelagate">
+             <summary>
+            Делегат проброски проактивной отправки сообщений
+             </summary>
+             <param name="message"></param>
+             <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Providers.UsersService.ExistIdTeamDelegate">
+            <summary>
+            Делегат для проверки team id API 
+            </summary>
+            <param name="idTeam"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Providers.UsersService.GetCycleDelegate">
+            <summary>
+            Делегат для получения пользлователем цикла платформы
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:ConnectorHost.Providers.UsersService._usersDictionary">
+            <summary>
+            Коллекция для хранения позьзователей
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.UsersService._idTeam">
+            <summary>
+            Список идентификаторов Team кеш
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Providers.UsersService.CycleTimer">
+            <summary>
+            Таймер внутриплатформенных циклов
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.ExistUser(System.String)">
+            <summary>
+            Проверка наличия пользователя в коллекции.
+            </summary>
+            <param name="id">Идентификатор</param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.GetUser(System.String)">
+            <summary>
+            Получление объект пользователь
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.AddUser(System.String,System.String,ConnectorHost.Providers.UsersService.SenderMessageDelagate)">
+            <summary>
+            Добавление пользовалтеля
+            </summary>
+            <param name="id">Идентификатор</param>
+            <param name="messenger">Мессенджер</param>
+            <param name="sender">Делегат обратный отправщик сообщений</param>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.ExistIdTeam(System.String)">
+            <summary>
+            Проверка наличия id team 
+            </summary>
+            <param name="idTeam"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.GetCycle">
+            <summary>
+            Получить текущий цикл платформы
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.TimerCallback(System.Object)">
+            <summary>
+            Событие срабатываение таймера
+            </summary>
+            <param name="sender"></param>
+        </member>
+        <member name="M:ConnectorHost.Providers.UsersService.GetIdTeamApi(System.String)">
+            <summary>
+            Заглушка для полноценной проверки у API
+            </summary>
+            <param name="idTeam"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Resources.Content">
+            <summary>
+            Объект контент
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Resources.Content.Text">
+            <summary>
+            Текст
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Resources.Content.Attachments">
+            <summary>
+            Вложения
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.Resources.Text">
+            <summary>
+            Обработчик текстов
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Resources.Text.RussianTextDictionary">
+            <summary>
+            Список для хранения Русский текстов
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.Resources.Text.EnglishTextDictionary">
+            <summary>
+            Список для хранения английских текстов
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.Resources.Text.GetText(ConnectorHost.Resources.NameText,ConnectorHost.Language)">
+            <summary>
+            Получить текст
+            </summary>
+            <param name="nameText">Название текста</param>
+            <param name="language">Язык</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Resources.NameText">
+            <summary>
+            Названия текстов
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.Hello">
+            <summary>
+            Приветствие
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.Language">
+            <summary>
+            Просьба выбрать язык
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SucessSelectLanguage">
+            <summary>
+            Успешный выбор языка
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.ErrorSelectLanguage">
+            <summary>
+            Ошибочный выбор языка
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SpamSelectLanguage">
+            <summary>
+            Spam выбор языка
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.GetIdTeam">
+            <summary>
+            Просьба прислать идентификатор комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.ErrorIdTeam">
+            <summary>
+            Ошибка во время проверки идентификатора комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SpamIdTeam">
+            <summary>
+            Спам во время проверки идентификатора комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SucessIdTeam">
+            <summary>
+            Успешная проверка id комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.StartRoutingMessage">
+            <summary>
+            Старт маршрутизации сообщений на API
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SpeedMessaging">
+            <summary>
+            Высокая скорость отправки сообщений
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.SpamSpeedMessaging">
+            <summary>
+            Спам по скорости отправки сообщений
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.ExitSession">
+            <summary>
+            Закрытие сессии
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.Resources.NameText.ExitTimeSession">
+            <summary>
+            Закрытие сессии по таймеру
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.User">
+            <summary>
+            Объект пользователь 
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.Id">
+            <summary>
+            Идентификатор пользователя
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.Messenger">
+            <summary>
+            Мессенджер 
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.User._text">
+            <summary>
+            Объект по работе с классом Text (not good)
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.Language">
+            <summary>
+            Язык пользователя
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.State">
+            <summary>
+            Состояние пользователя
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.TeamId">
+            <summary>
+            Идентификатор комнаты
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.Sender">
+            <summary>
+            Обратный отправщик сообщений 
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.ExistIdTeam">
+            <summary>
+            Проверка корректности id
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.GetCycle">
+            <summary>
+            Получение цикла платформы
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.CountErrorSelectLenguage">
+            <summary>
+            Счётчик ошибок во время ввода языка
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.CountErrorSelectTeamId">
+            <summary>
+            Счётчик ошибок во время ввода TeamId
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.CountSpeedMessage">
+            <summary>
+            Счётчик подозрений на спам сообщениями
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.СycleEvent">
+            <summary>
+            Цикл на котором произашло событие пользователя
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.LastTimeActive">
+            <summary>
+            Последнее время активности
+            </summary>
+        </member>
+        <member name="P:ConnectorHost.User.LastCycleActive">
+            <summary>
+            Последняя активность в цикле
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.User.InPoint(ConnectorHost.Message)">
+            <summary>
+            Входная точка для приёма сообщений
+            </summary>
+            <param name="message">Сообщение</param>
+            <returns></returns>
+        </member>
+        <member name="M:ConnectorHost.User.CloseTimeSession">
+            <summary>
+            Метод закрытия сесси по времени 
+            </summary>
+        </member>
+        <member name="M:ConnectorHost.User.ContentToMessage(ConnectorHost.Resources.Content)">
+            <summary>
+            Конвертер Content to Message
+            </summary>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ConnectorHost.Language">
+            <summary>
+            Перечисление языков
+            </summary>
+        </member>
+        <member name="T:ConnectorHost.UserState">
+            <summary>
+            Внутренние состояния объекта User
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.Started">
+            <summary>
+            Старт взаимодействия с пользователем
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.Selectlanguage">
+            <summary>
+            Выбор языка
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.SpamSelectlanguage">
+            <summary>
+            Spam во ремя выбора языка
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.SelectGetIdTeam">
+            <summary>
+            Уточнение идентификатора комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.SpamGetIdTeam">
+            <summary>
+            Spam идентификатор комнаты
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.RouteMessage">
+            <summary>
+            Маршрутизация сообщений на Sender API
+            </summary>
+        </member>
+        <member name="F:ConnectorHost.UserState.SpamSpeedMessaging">
+            <summary>
+            Спам по скорости отправки сообщений
+            </summary>
+        </member>
+    </members>
+</doc>

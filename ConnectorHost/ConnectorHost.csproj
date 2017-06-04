@@ -10,14 +10,29 @@
     <DocumentationFile>bin\Debug\netcoreapp1.1\ConnectorHost.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp1.1\ConnectorHost.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <None Remove="Properties\PublishProfiles\ConnectorHost20170604014738 - Web Deploy.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\ConnectorHost.xml" />
+    <Content Include="wwwroot\favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="wwwroot\logs\stdout\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
-    <PackageReference Include="Microsoft.Bot.Connector" Version="3.5.1-alpha" />
+    <PackageReference Include="Microsoft.Bot.Connector.AspNetCore" Version="3.6.0-alpha" />
+    <PackageReference Include="Microsoft.Bot.Connector.AspNetCore.Mvc" Version="3.6.0-alpha" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />

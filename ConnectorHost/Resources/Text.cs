@@ -10,35 +10,43 @@ namespace ConnectorHost.Resources
     /// </summary>
     public class Text
     {
+        public Text()
+        {
+            foreach (NameText name in Enum.GetValues(typeof(NameText)))
+            {
+                RussianTextDictionary.Add(name, new Content() { Text = "**Text Ru**: " + name.ToString() });
+                EnglishTextDictionary.Add(name, new Content() { Text = "**Text En**: " + name.ToString() });
+            }
+        }
         /// <summary>
         /// Список для хранения Русский текстов
         /// </summary>
-        public Dictionary<NemeText, Content> RussianTextDictionary { get; set; }
+        public Dictionary<NameText, Content> RussianTextDictionary { get; set; } = new Dictionary<NameText, Content>();
         /// <summary>
         /// Список для хранения английских текстов
         /// </summary>
-        public Dictionary<NemeText, Content> EnglishTextDictionary { get; set; }
+        public Dictionary<NameText, Content> EnglishTextDictionary { get; set; } = new Dictionary<NameText, Content>();
 
         /// <summary>
         /// Получить текст
         /// </summary>
-        /// <param name="nemeText">Название текста</param>
+        /// <param name="nameText">Название текста</param>
         /// <param name="language">Язык</param>
         /// <returns></returns>
-        public Content GetText(NemeText nemeText, Language language)
+        public Content GetText(NameText nameText, Language language)
         {
             switch (language)
             {
                 case Language.Russian:
                 {
-                    if (RussianTextDictionary.ContainsKey(nemeText))
-                        return RussianTextDictionary[nemeText];
+                    if (RussianTextDictionary.ContainsKey(nameText))
+                        return RussianTextDictionary[nameText];
                 }
                     break;
                 case Language.English:
                 {
-                    if (EnglishTextDictionary.ContainsKey(nemeText))
-                        return EnglishTextDictionary[nemeText];
+                    if (EnglishTextDictionary.ContainsKey(nameText))
+                        return EnglishTextDictionary[nameText];
                 }
                     break;
             }
@@ -51,7 +59,7 @@ namespace ConnectorHost.Resources
     /// <summary>
     /// Названия текстов
     /// </summary>
-    public enum NemeText
+    public enum NameText
     {
         /// <summary>
         /// Приветствие

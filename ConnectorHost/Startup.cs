@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ConnectorHost.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,8 @@ namespace ConnectorHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.UseBotConnector();
+            services.AddSingleton(_ => Configuration);
             //UserService
             services.AddSingleton<IUsersService, UsersService>();
             //Bot Framework Provider Service
@@ -46,7 +49,7 @@ namespace ConnectorHost
                     Description = "Connector Description",
                     TermsOfService = "None",
                     Contact = new Contact { Name = "Alexander Popov", Email = "", Url = "" },
-                    License = new License { Name = "Use under LICX", Url = "http://url.com" }
+                    License = new License { Name = "Use under LICX", Url = "" }
                 });
 
                 //Set the comments path for the swagger json and ui.
@@ -56,14 +59,22 @@ namespace ConnectorHost
             });
 
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(TrustServiceUrlAttribute));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+
+            app.UseBotAuthentication(new StaticCredentialProvider(
+            Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,
+            Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppPasswordKey)?.Value));
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ConnectorHost.Providers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
@@ -57,37 +59,50 @@ namespace ConnectorHost.Controllers
         /// </summary>
         /// <param name="activity">Объект сообщения</param>
         /// <returns></returns>
+
+        //[Authorize(Roles = "Bot")]
         [HttpPost]
-        [Route("botframework")]
-        public virtual async Task<OkResult> PostBotFramework([FromBody]Activity activity) 
+        [Route("BotFramework")]
+        
+        public async Task<OkResult> BotFramework([FromBody]Activity activity) 
         {
-            //Проверка наличия Client Provider
-            if (!_bfService.ExistProviderClient(activity.Conversation.Id, activity.ChannelId,
-                activity.From.Id))
+            try
             {
-                _bfService.AddProviderClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
-                //Создание id по шаблону
-                var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
-                activity.From.Id);
-                //Проверка наличия пользовалея
-                if (!_usersService.ExistUser(id))
+                if (!_bfService.ExistProviderClient(activity.Conversation.Id, activity.ChannelId,
+                activity.From.Id))
                 {
-                    //Добавление пользователя
-                    _usersService.AddUser(id, activity.ChannelId, _bfService.SendMessage);
+                    _bfService.AddProviderClient(new Uri(activity.ServiceUrl), _appCredentials, activity.From, activity.Recipient, activity.Conversation.Id, activity.ChannelId, activity.From.Id);
+                    //Создание id по шаблону
+                    var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                    activity.From.Id);
+                    //Проверка наличия пользовалея
+                    if (!_usersService.ExistUser(id))
+                    {
+                        //Добавление пользователя
+                        _usersService.AddUser(id, activity.ChannelId, _bfService.SendMessage);
+                    }
+                }
+
+                //if message
+                if (activity.Type == ActivityTypes.Message)
+                {
+                    //Генерация id
+                    var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
+                        activity.From.Id);
+
+                    //Отправка сообщения на обработку
+                    //Можно поставить выполнение в ассинхронном режиме
+                    await _usersService.GetUser(id).InPoint(_bfService.ActivityToMessage(activity, id));
                 }
             }
-
-            //if message
-            if (activity.Type == ActivityTypes.Message)
+            catch (Exception e)
             {
-                //Генерация id
-                var id = _bfService.CreateIdentificator(activity.Conversation.Id, activity.ChannelId,
-                    activity.From.Id);
-               
-                //Отправка сообщения на обработку
-                //Можно поставить выполнение в ассинхронном режиме
-               await _usersService.GetUser(id).InPoint(_bfService.ActivityToMessage(activity, id));
+                Debug.WriteLine(e);
+                //Console.WriteLine(e);
+                throw;
             }
+            //Проверка наличия Client Provider
+            
             return Ok();
         }
 

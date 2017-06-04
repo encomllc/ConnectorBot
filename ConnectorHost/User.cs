@@ -95,14 +95,17 @@ namespace ConnectorHost
         /// <returns></returns>
         public async Task InPoint(Message message)
         {
-
+            //Присвеваем время последней активности
+            LastTimeActive = message.Date;
+            //Присваеваем цикл временной активности
+            LastCycleActive = GetCycle();
             #region Command Exit
 
             //Проверка на команды выходы из сессии
             var testExit = message.Text.ToLower();
             if (testExit == "exit")
             {
-                await Sender(ContentToMessage(_text.GetText(NemeText.ExitSession, Language)));
+                await Sender(ContentToMessage(_text.GetText(NameText.ExitSession, Language)));
                 //Перевод состояния в ожидание idTeam
                 State = UserState.SpamGetIdTeam;
                 return;
@@ -111,41 +114,42 @@ namespace ConnectorHost
             #endregion
 
             #region Время и Speed Messaging
-
-            //Вычисление времени последней активности 
-            var time = message.Date.Subtract(LastTimeActive);
-            //Проверка высокой скорости отправки сообщений 
-            //Чаще 1 сообщения в 15 секунд
-            if (time.TotalSeconds < 15)
+            if (State == UserState.RouteMessage)
             {
-                //Увеличение счётчика нарушений
-                CountSpeedMessage++;
-                //Нарушение 3 раза
-                if (CountSpeedMessage > 3)
+                //Вычисление времени последней активности 
+                var time = message.Date.Subtract(LastTimeActive);
+                //Проверка высокой скорости отправки сообщений 
+                //Чаще 1 сообщения в 15 секунд
+                if (time.TotalSeconds < 15)
                 {
-                    await Sender(ContentToMessage(_text.GetText(NemeText.SpeedMessaging, Language)));
+                    //Увеличение счётчика нарушений
+                    CountSpeedMessage++;
+                    //Нарушение 3 раза
+                    if (CountSpeedMessage > 3)
+                    {
+                        await Sender(ContentToMessage(_text.GetText(NameText.SpeedMessaging, Language)));
+                    }
+                    //Нарушение 5 раз
+                    if (CountSpeedMessage > 5)
+                    {
+                        await Sender(ContentToMessage(_text.GetText(NameText.SpamSpeedMessaging, Language)));
+                        State = UserState.SpamSpeedMessaging;
+                        //Выход  из метода
+                        return;
+                    }
                 }
-                //Нарушение 5 раз
-                if (CountSpeedMessage > 5)
+                else
                 {
-                    await Sender(ContentToMessage(_text.GetText(NemeText.SpamSpeedMessaging, Language)));
-                    State = UserState.SpamSpeedMessaging;
+                    //Обнуляем счётчик
+                    CountSpeedMessage = 0;
                 }
-            }
-            else
-            {
-                //Обнуляем счётчик
-                CountSpeedMessage = 0;
             }
 
 
 
             #endregion
 
-            //Присвеваем время последней активности
-            LastTimeActive = message.Date;
-            //Присваеваем цикл временной активности
-            LastCycleActive = GetCycle();
+           
 
             //Реализация хранения состояния пользователя
             switch (State)
@@ -153,10 +157,10 @@ namespace ConnectorHost
                 case UserState.Started: //Старт
                     {
                         //Отправляем приветствие 
-                        await Sender(ContentToMessage(_text.GetText(NemeText.Hello, Language.Russian)));
+                        await Sender(ContentToMessage(_text.GetText(NameText.Hello, Language.Russian)));
 
                         //Отправляем просьбу выбрать язык
-                        await Sender(ContentToMessage(_text.GetText(NemeText.Language, Language.Russian)));
+                        await Sender(ContentToMessage(_text.GetText(NameText.Language, Language.Russian)));
 
                         //Изменяем состояние в позицию ожидания цыфры языка
                         State = UserState.Selectlanguage;
@@ -171,28 +175,28 @@ namespace ConnectorHost
                                 {
                                     //Присваеваем значение языка
                                     Language = Language.Russian;
-                                    await Sender(ContentToMessage(_text.GetText(NemeText.SucessSelectLanguage, Language)));
+                                    await Sender(ContentToMessage(_text.GetText(NameText.SucessSelectLanguage, Language)));
                                     //Изменяем состояние в ожидание идентификатора Team
                                     State = UserState.SelectGetIdTeam;
                                     //Просьба прислать id Team
-                                    await Sender(ContentToMessage(_text.GetText(NemeText.GetIdTeam, Language)));
+                                    await Sender(ContentToMessage(_text.GetText(NameText.GetIdTeam, Language)));
                                 }
                                 break;
                             case "2":
                                 {
                                     //Присваеваем значение языка
                                     Language = Language.English;
-                                    await Sender(ContentToMessage(_text.GetText(NemeText.SucessSelectLanguage, Language)));
+                                    await Sender(ContentToMessage(_text.GetText(NameText.SucessSelectLanguage, Language)));
                                     //Изменяем состояние в ожидание идентификатора Team
                                     State = UserState.SelectGetIdTeam;
                                     //Просьба прислать id Team
-                                    await Sender(ContentToMessage(_text.GetText(NemeText.GetIdTeam, Language)));
+                                    await Sender(ContentToMessage(_text.GetText(NameText.GetIdTeam, Language)));
                                 }
                                 break;
                             default:
                                 {
                                     //На случай ошибки в выборе языка
-                                    await Sender(ContentToMessage(_text.GetText(NemeText.ErrorIdTeam, Language.Russian)));
+                                    await Sender(ContentToMessage(_text.GetText(NameText.ErrorIdTeam, Language.Russian)));
 
                                     //Увеличиваем счётчик ошибок ввода языка
                                     CountErrorSelectLenguage++;
@@ -206,7 +210,7 @@ namespace ConnectorHost
                             //Перевод в состояние бана по SpamSelectlanguage
                             State = UserState.SpamSelectlanguage;
                             //На случай ошибки в выборе языка
-                            await Sender(ContentToMessage(_text.GetText(NemeText.SpamSelectLanguage, Language.Russian)));
+                            await Sender(ContentToMessage(_text.GetText(NameText.SpamSelectLanguage, Language.Russian)));
                             //Присваеваем занчние внцтреплатформенного цикла 
                             СycleEvent = GetCycle();
                         }
@@ -214,7 +218,7 @@ namespace ConnectorHost
                     break;
                 case UserState.SpamSelectlanguage: //Спам по выбору языка
                     {
-                        await Sender(ContentToMessage(_text.GetText(NemeText.SpamSelectLanguage, Language.Russian)));
+                        await Sender(ContentToMessage(_text.GetText(NameText.SpamSelectLanguage, Language.Russian)));
                     }
                     break;
                 case UserState.SelectGetIdTeam: //Ввод id
@@ -226,14 +230,14 @@ namespace ConnectorHost
                             //Присваеваем idTeam
                             TeamId = text;
                             //Отправляем Сообщение что всё ок
-                            await Sender(ContentToMessage(_text.GetText(NemeText.SucessIdTeam, Language)));
+                            await Sender(ContentToMessage(_text.GetText(NameText.SucessIdTeam, Language)));
                             //Переводим в режим роутинга сообщений на API
                             State = UserState.RouteMessage;
                         }
                         else
                         {
                             //Отправляем ошибку
-                            await Sender(ContentToMessage(_text.GetText(NemeText.ErrorIdTeam, Language)));
+                            await Sender(ContentToMessage(_text.GetText(NameText.ErrorIdTeam, Language)));
                             //Увеличиваем счётчик ошибок ввода id
                             CountErrorSelectTeamId++;
                         }
@@ -242,7 +246,7 @@ namespace ConnectorHost
                         if (CountErrorSelectTeamId > 5)
                         {
                             //Отправляем сообщение с баном по вводу id
-                            await Sender(ContentToMessage(_text.GetText(NemeText.SpamIdTeam, Language)));
+                            await Sender(ContentToMessage(_text.GetText(NameText.SpamIdTeam, Language)));
                             State = UserState.SpamGetIdTeam;
                             //Присваеваем занчние внцтреплатформенного цикла 
                             СycleEvent = GetCycle();
@@ -252,13 +256,18 @@ namespace ConnectorHost
                     break;
                 case UserState.SpamGetIdTeam: //Спам по вводу id
                     {
-                        await Sender(ContentToMessage(_text.GetText(NemeText.SpamIdTeam, Language)));
+                        await Sender(ContentToMessage(_text.GetText(NameText.SpamIdTeam, Language)));
                     }
                     break;
                 case UserState.RouteMessage://Роутинг сообщений в API
                     {
                         await Sender(ContentToMessage(new Content(){Text = message.Text}));
                         // TODO Добавить код
+                    }
+                    break;
+                case UserState.SpamSpeedMessaging://Спам с высокой скоросью
+                    {
+                        await Sender(ContentToMessage(_text.GetText(NameText.SpamSpeedMessaging, Language)));
                     }
                     break;
             }
@@ -270,7 +279,7 @@ namespace ConnectorHost
         {
             //Присваеваем состояние ожидания id Team
             State = UserState.SelectGetIdTeam;
-            await Sender(ContentToMessage(_text.GetText(NemeText.ExitTimeSession, Language)));
+            await Sender(ContentToMessage(_text.GetText(NameText.ExitTimeSession, Language)));
 
         }
 
@@ -281,10 +290,12 @@ namespace ConnectorHost
         /// <returns></returns>
         private Message ContentToMessage(Content content)
         {
-            var message = new Message();
-            message.Id = Guid.NewGuid().ToString();
-            message.IdUser = Id;
-            message.Date = DateTime.Now;
+            var message = new Message()
+            {
+                Id = Guid.NewGuid().ToString(),
+                IdUser = Id,
+                Date = DateTime.Now
+            };
             if (content.Text != null)
                 message.Text = content.Text;
             if (content.Attachments != null)
