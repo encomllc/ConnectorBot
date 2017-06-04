@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <ApplicationInsightsResourceId>/subscriptions/b2ead72e-7781-464f-8085-00da81f731f3/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/ConnectorHost</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/b2ead72e-7781-464f-8085-00da81f731f3/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/ConnectorHost</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,6 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 </Project>

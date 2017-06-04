@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConnectorHost.Providers
@@ -39,15 +42,37 @@ namespace ConnectorHost.Providers
     public class UsersService : IUsersService
     {
         /// <summary>
+        /// Конструктор UsersService
+        /// </summary>
+        public UsersService()
+        {
+            //Задаёт параметр времени циклов
+            var timer = new TimeSpan(0, 1, 0);
+            CycleTimer = new Timer(TimerCallback, Cycle, timer, timer);
+        }
+
+
+        #region Делегаты
+
+        /// <summary>
         ///Делегат проброски проактивной отправки сообщений
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
         public delegate Task SenderMessageDelagate(Message message);
-
+        /// <summary>
+        /// Делегат для проверки team id API 
+        /// </summary>
+        /// <param name="idTeam"></param>
+        /// <returns></returns>
         public delegate Task<bool> ExistIdTeamDelegate(string idTeam);
+        /// <summary>
+        /// Делегат для получения пользлователем цикла платформы
+        /// </summary>
+        /// <returns></returns>
+        public delegate int GetCycleDelegate();
 
-
+        #endregion
 
         /// <summary>
         /// Коллекция для хранения позьзователей
@@ -57,7 +82,15 @@ namespace ConnectorHost.Providers
         /// <summary>
         /// Список идентификаторов Team кеш
         /// </summary>
-        private List<string> _idTeam = new List<string>(){"1"};
+        private List<string> _idTeam = new List<string>() { "1" };
+
+        /// <summary>
+        /// Таймер внутриплатформенных циклов
+        /// </summary>
+        public Timer CycleTimer;
+
+        public int Cycle { get; set; }
+
 
         /// <summary>
         /// Проверка наличия пользователя в коллекции.
@@ -93,11 +126,11 @@ namespace ConnectorHost.Providers
                 Messenger = messenger,
                 Sender = sender,
                 State = UserState.Started,
-                ExistIdTeam = ExistIdTeam
-                
+                ExistIdTeam = ExistIdTeam,
+                GetCycle = GetCycle
             };
             //Добавление в коллекцию
-            _usersDictionary.Add(id,user);
+            _usersDictionary.Add(id, user);
         }
         /// <summary>
         /// Проверка наличия id team 
@@ -122,9 +155,63 @@ namespace ConnectorHost.Providers
                     return true;
                 }
             }
-           
+
             return false;
         }
+
+        /// <summary>
+        /// Получить текущий цикл платформы
+        /// </summary>
+        /// <returns></returns>
+        public int GetCycle()
+        {
+            return Cycle;
+        }
+        /// <summary>
+        /// Событие срабатываение таймера
+        /// </summary>
+        /// <param name="sender"></param>
+        public void TimerCallback(object sender)
+        {
+            //Увеличиваем цикл
+            Cycle++;
+
+            //Разбан spam Select Language
+            foreach (var user in _usersDictionary.Where(x => x.Value.State == UserState.SpamSelectlanguage))
+            {
+                //+6 = 30 минут
+                //+12 = 60 минут
+                if (user.Value.СycleEvent + 6 < Cycle)
+                    user.Value.State = UserState.SelectGetIdTeam;
+            }
+            //Разбан spam Get Id Team
+            foreach (var user in _usersDictionary.Where(x=>x.Value.State== UserState.SpamGetIdTeam))
+            {
+                //+6 = 30 минут
+                //+12 = 60 минут
+                if (user.Value.СycleEvent + 12 < Cycle)
+                    user.Value.State = UserState.SelectGetIdTeam;
+            }
+
+            //Разбан spam Speed Messaging 
+            foreach (var user in _usersDictionary.Where(x=>x.Value.State== UserState.SpamSpeedMessaging))
+            {   
+                //+3 = 15 минут
+                //+6 = 30 минут
+                //+12 = 60 минут
+                if (user.Value.СycleEvent + 3 < Cycle)
+                    user.Value.State = UserState.SelectGetIdTeam;
+            }
+
+            //Закрытие Routing сессий в которых нет активности на протяжении 30 минут
+            foreach (var user in _usersDictionary.Values.Where(x=>x.LastCycleActive+6<Cycle&& x.State== UserState.RouteMessage))
+            {
+                user.CloseTimeSession().Wait();
+            }
+                
+           
+        }
+
 
         /// <summary>
         /// Заглушка для полноценной проверки у API
@@ -135,6 +222,8 @@ namespace ConnectorHost.Providers
         {
             return "not exist";
         }
+
+
 
     }
 }

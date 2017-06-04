@@ -39,6 +39,7 @@ namespace ConnectorHost
         /// Идентификатор комнаты
         /// </summary>
         public string TeamId { get; set; }
+       
 
         /// <summary>
         /// Обратный отправщик сообщений 
@@ -49,21 +50,43 @@ namespace ConnectorHost
         /// Проверка корректности id
         /// </summary>
         public UsersService.ExistIdTeamDelegate ExistIdTeam { get; set; }
+        /// <summary>
+        /// Получение цикла платформы
+        /// </summary>
+        public UsersService.GetCycleDelegate GetCycle { get; set; }
 
         #region Счётчики спама
 
-        //Счётчик ошибок во время ввода языка
+        /// <summary>
+        /// Счётчик ошибок во время ввода языка
+        /// </summary>
         public int CountErrorSelectLenguage { get; set; } = 0;
 
-        //Счётчик ошибок во время ввода TeamId
+        /// <summary>
+        /// Счётчик ошибок во время ввода TeamId
+        /// </summary>
         public int CountErrorSelectTeamId { get; set; } = 0;
 
-        //Счётчик подозрений на спам сообщениями
+        /// <summary>
+        /// Счётчик подозрений на спам сообщениями
+        /// </summary>
         public int CountSpeedMessage { get; set; } = 0;
-        //Последнее время активности
-        public DateTime LastTimeActive { get; set; } 
 
+        /// <summary>
+        /// Цикл на котором произашло событие пользователя
+        /// </summary>
+        public int СycleEvent { get; set; }
         #endregion
+
+        /// <summary>
+        /// Последнее время активности
+        /// </summary>
+        public DateTime LastTimeActive { get; set; }
+        /// <summary>
+        /// Последняя активность в цикле
+        /// </summary>
+        public int LastCycleActive { get; set; }
+        
 
         /// <summary>
         /// Входная точка для приёма сообщений
@@ -115,11 +138,14 @@ namespace ConnectorHost
                 CountSpeedMessage = 0;
             }
 
-            //Присвеваем время последней активности
-            LastTimeActive = message.Date;
+
 
             #endregion
 
+            //Присвеваем время последней активности
+            LastTimeActive = message.Date;
+            //Присваеваем цикл временной активности
+            LastCycleActive = GetCycle();
 
             //Реализация хранения состояния пользователя
             switch (State)
@@ -181,6 +207,8 @@ namespace ConnectorHost
                             State = UserState.SpamSelectlanguage;
                             //На случай ошибки в выборе языка
                             await Sender(ContentToMessage(_text.GetText(NemeText.SpamSelectLanguage, Language.Russian)));
+                            //Присваеваем занчние внцтреплатформенного цикла 
+                            СycleEvent = GetCycle();
                         }
                     }
                     break;
@@ -216,6 +244,8 @@ namespace ConnectorHost
                             //Отправляем сообщение с баном по вводу id
                             await Sender(ContentToMessage(_text.GetText(NemeText.SpamIdTeam, Language)));
                             State = UserState.SpamGetIdTeam;
+                            //Присваеваем занчние внцтреплатформенного цикла 
+                            СycleEvent = GetCycle();
                         }
 
                     }
@@ -227,6 +257,7 @@ namespace ConnectorHost
                     break;
                 case UserState.RouteMessage://Роутинг сообщений в API
                     {
+                        await Sender(ContentToMessage(new Content(){Text = message.Text}));
                         // TODO Добавить код
                     }
                     break;
